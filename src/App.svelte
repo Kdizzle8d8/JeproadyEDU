@@ -4,7 +4,6 @@
   import Router from "svelte-spa-router";
   import { routes } from "./routes";
   import { link } from "svelte-spa-router";
-  import { Separator } from "$lib/components/ui/separator";
 
   let links = [
     { name: "Home", href: "/" },
@@ -14,11 +13,13 @@
 </script>
 
 <ModeWatcher />
-<div class="flex flex-1 h-10 ml-2 place-items-center">
-  {#each links as l}
-    <Button variant="link">
-      <a use:link={l.href}>{l.name}</a>
-    </Button>
-  {/each}
+<div class="flex flex-col w-screen h-screen">
+  <div class="flex h-10 ml-2 border-b-2 border-gray-800 place-items-center">
+    {#each links as l}
+      <Button variant="link">
+        <a use:link={l.href}>{l.name}</a>
+      </Button>
+    {/each}
+  </div>
+  <Router {routes} />
 </div>
-<Router {routes} />

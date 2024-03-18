@@ -3,10 +3,17 @@ import { Question } from "./Question";
 class Category {
   title: string;
   questions: Question[] = [];
-  isActive: boolean = false;
+  active: boolean = false;
   constructor(title: string) {
     this.title = title;
   }
+
+  isActive = () => {
+    return this.active;
+  };
+  getActiveQuestion = () => {
+    return this.questions.find((question) => question.isActive());
+  };
 }
 
 export { Category };

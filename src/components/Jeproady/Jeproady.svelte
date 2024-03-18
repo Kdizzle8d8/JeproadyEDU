@@ -1,147 +1,108 @@
 <script lang="ts">
-  import * as ContextMenu from "$lib/components/ui/context-menu";
-  import * as Select from "$lib/components/ui/select";
-  import * as Dialog from "$lib/components/ui/dialog";
-  import * as Popover from "$lib/components/ui/popover";
   import { Category } from "./Category";
   import { Question } from "./Question";
-  let categories: Category[] = [{ title: "Dogs", questions: [new Question("stuff")], isActive: false }];
-  let tempCatName: string;
-  let catNum: number;
-  let valRange: number[] = [100, 200, 300, 400, 500];
-  let SelectedVal: any;
-  let barWidth = "w-[20rem]";
-  function PushNClearCats() {
-    let tempCat: Category = { title: tempCatName, questions: [], isActive: false };
-    for (let cat of categories) {
-      if (cat == tempCat) {
-        alert("Category already exists!");
-        return;
-      }
-    }
-    categories.push(tempCat);
-    categories = categories;
-    console.log(categories);
-    tempCatName = "";
-  }
-  let tempQ: Question = new Question();
-  let tempQCat: Category = new Category("NULL");
+  import PlusButton from "./plusButton.svelte";
+  import * as Dialog from "$lib/components/ui/dialog";
+  import * as DropdownMenu from "$lib/components/ui/dropdown-menu";
+  import { categories } from "./catStore";
+  import { writable } from "svelte/store";
+  const questions = writable<Question[]>([]);
 
-  function GetActive(): number {
-    for (let cat of categories) {
-      if (cat.isActive) {
-        console.log("active");
-        return categories.indexOf(cat);
-      }
-    }
-    console.log("No active category");
-    return -1;
-  }
-  function MakeActive(cat: Category) {
-    for (let cat of categories) {
-      cat.isActive = false;
-    }
-    cat.isActive = true;
+  $: categories;
+  $categories.push(new Category("test"));
+  const active = writable<Category>();
+  let activeQ: Question;
 
-    tempQCat.questions = tempQCat.questions;
-    console.log(cat);
+  let newCat = "";
+  let testcat = new Category("test");
+  function addCategory() {
+    $categories = [...$categories, new Category(newCat)];
+    console.log($categories);
   }
 
-  function PushNClearQs() {
-    tempQ.value = SelectedVal.value;
-    tempQCat.questions.push(tempQ);
-    tempQCat.questions = tempQCat.questions;
-
-    SelectedVal = null;
-    console.log(categories);
-    tempQ = new Question();
+  function addQuestion(q: Question) {
+    $active.questions.push(q);
+    console.log($active.questions);
+    active.set($active);
   }
 
-  let isOpen = false;
+  function getActiveQ(): Question | undefined {
+    return $active.questions.find((question) => question.isActive);
+  }
+  let tempQ = new Question();
+  tempQ.value = 100;
+  function makeActiveQ(q: Question) {
+    activeQ = q;
+  }
+
+  function makeActiveCat(cat: Category) {
+    $active = cat;
+  }
 </script>
 
-<div class="flex flex-col flex-grow fixed h-[100vh] w-[15rem] order-1 border-r-2">
-  <div class="grid w-[95%] grid-flow-col-dense mt-5 ml-5 text-white auto-cols-min h-min">
-    <input class="w-[10rem] h-[2.5rem] focus-within:scale-[1.04] transition-all bg-gray-700 border-transparent rounded-md focus-within:outline-none focus-within:border-2 focus-within:border-blue-600 text-center" bind:value={tempCatName} />
-    <button class="w-[2.3rem] h-[2.3rem] place-items-center rounded-md ml-2 self-center grid bg-blue-500 text-white font-semibold text-xl active:scale-[.95] duration-75 transition-all" on:click={PushNClearCats}>+</button>
-  </div>
+<div class="flex w-full h-full">
+  <div class="flex flex-col flex-grow h-full border-r-2 border-gray-800 w-44">
+    <Dialog.Root>
+      <Dialog.Trigger>
+        <PlusButton props="h-min w-15 flex flex-wrap mx-2 mt-4 p-2" content="New Question"></PlusButton>
+      </Dialog.Trigger>
 
-  <div class="grid grid-cols-1 gap-0 my-5 border-2 border-l-0 border-gray-600 rounded-md rounded-l-none gird-flow-col w-max h-min">
-    {#each categories as cat}
-      <ContextMenu.Root closeOnEscape={false}>
-        <ContextMenu.Trigger>
+      <Dialog.Content class="max-w-[20rem]">
+        <form on:submit|preventDefault={addCategory}><input placeholder="Category Name" class="w-[15rem] rounded-md outline-transparent border-transparent text-center h-10" bind:value={newCat} /></form>
+      </Dialog.Content>
+    </Dialog.Root>
+    <div class="grid grid-cols-1 gap-0 my-5 border-2 border-l-0 border-gray-600 rounded-md rounded-l-none gird-flow-col w-max h-min">
+      {#each $categories as category}
+        <PlusButton
+          props="h-min w-max flex mx-auto my-2 mx-2 mr-4 p-2"
+          content={category.title}
+          onClick={() => {
+            makeActiveCat(category);
+          }}
+        ></PlusButton>
+      {/each}
+    </div>
+  </div>
+  {#if $active}
+    <div class="flex flex-col w-full h-full">
+      <header class="flex w-full h-10 border-b-2 border-gray-800">
+        <span class="self-center block ml-2 font-semibold text-center">Now Editing: {$active.title}</span>
+      </header>
+      <span class="flex items-center h-12 mx-4 border-2 border-t-0 border-gray-800 rounded-md rounded-t-none">
+        {#each $active.questions as question}
           <button
-            class="w-min px-4 h-[2.3rem] place-items-center rounded-md ml-2 self-center grid bg-blue-500 text-white font-semibold text-base m-2 active:scale-[.95] duration-75 transition-all"
+            class="px-4 ml-2 text-yellow-300 bg-gray-700 border-blue-500 rounded-full hover:border-b-2 w-min h-min"
             on:click={() => {
-              MakeActive(cat);
+              makeActiveQ(question);
             }}
           >
-            {cat.title}
+            ${question.value}
           </button>
-        </ContextMenu.Trigger>
-        <ContextMenu.Content>
-          <ContextMenu.Item>
-            <button
-              class="w-full h-full"
-              on:click={() => {
-                MakeActive(cat);
-              }}
-              on:click={() => {
-                isOpen = true;
-              }}
-            >
-              Rename
-            </button>
-          </ContextMenu.Item>
-        </ContextMenu.Content>
-      </ContextMenu.Root>
-    {/each}
-    <Popover.Root
-      open={isOpen}
-      onOutsideClick={() => {
-        isOpen = false;
-      }}
-    >
-      <Popover.Trigger></Popover.Trigger>
-      <Popover.Content>
-        <label for="CatNameInput" class="grid content-center text-base h-min w-min">Category:</label>
-        <input id="CatNameInput" class="flex flex-grow w-full my-auto text-center text-yellow-300 transition-all bg-gray-700 border-transparent rounded-md h-min focus-within:outline-none focus-within:border-2 focus-within:border-yellow-300" bind:value={categories[GetActive()].title} />
-      </Popover.Content>
-    </Popover.Root>
-  </div>
-</div>
-<div class="flex ml-[15rem] flex-1 flex-col">
-  <div class="mt-10 ml-5">
-    <h1 class="w-auto text-4xl font-bold h-min">
-      Welcome to the first test page of <span class="inline-block text-yellow-300">Jeproady!</span>
-    </h1>
-    <h2 class="ml-2 text-xl">Just enter your categories below to continue</h2>
-  </div>
-
-  {#if GetActive() != -1}
-    <div class="flex flex-1">
-      <!--qCard-->
-      <div class="flex flex-col flex-wrap flex-1 w-full text-white">
-        <div class="grid content-center justify-start w-full grid-flow-col gap-2 p-2 text-center grid-row-3 h-min">
-          <input class="w-[10rem] h-[2.5rem] transition-all bg-gray-700 rounded-md focus-within:outline-none border-transparent text-yellow-300 focus-within:border-2 focus-within:border-yellow-300 text-center" placeholder="Title" bind:value={tempQ.title} />
-          <input class="w-[10rem] h-[2.5rem] focus-within:scale-[1.04] transition-all bg-gray-700 rounded-md focus-within:outline-none border-transparent text-yellow-300 focus-within:border-2 focus-within:border-yellow-300 text-center" placeholder="Question" bind:value={tempQ.answer} />
-          <Select.Root bind:selected={SelectedVal}>
-            <Select.Trigger class="w-[10rem]">
-              <Select.Value placeholder="Price"></Select.Value>
-            </Select.Trigger>
-            <Select.Content>
-              <Select.Group>
-                {#each valRange as val}
-                  <Select.Item value={val}>
-                    {"$" + val}
-                  </Select.Item>
-                {/each}
-              </Select.Group>
-            </Select.Content>
-          </Select.Root>
-          <button class="w-[2.3rem] h-[2.3rem] place-items-center rounded-md ml-2 self-center grid bg-yellow-300 text-white font-semibold text-xl active:scale-[.95] duration-75 transition-all" on:click={PushNClearQs}>+</button>
-        </div>
-      </div>
+        {/each}
+        <DropdownMenu.Root>
+          <DropdownMenu.Trigger>
+            <PlusButton props="w-max ml-2 px-1 h-[30px] place-self-center inline-block text-center text-2xl rounded-[2px]  font-bold" color="bg-yellow-400"></PlusButton>
+          </DropdownMenu.Trigger>
+          <DropdownMenu.Content>
+            <DropdownMenu.Group>
+              <DropdownMenu.Item
+                on:click={() => {
+                  addQuestion(new Question(0, "MCQ"));
+                }}
+              >
+                MCQ
+              </DropdownMenu.Item>
+              <DropdownMenu.Item
+                on:click={() => {
+                  addQuestion(new Question(0, "FRQ"));
+                }}
+              >
+                FRQ
+              </DropdownMenu.Item>
+            </DropdownMenu.Group>
+          </DropdownMenu.Content>
+        </DropdownMenu.Root>
+      </span>
     </div>
   {/if}
 </div>

@@ -1,12 +1,15 @@
 class Question {
   title: string = "";
-  typeQ: "MCQ" | "TF" | "OE" = "MCQ";
+  typeQ: "MCQ" | "FRQ" = "MCQ";
   answer: string = "";
   value: number = 0;
-
-  constructor(title?: string) {
-    this.title = title ? title : "";
+  active: boolean = false;
+  isActive = () => {
+    return this.active;
+  };
+  constructor(val?: number, type?: "MCQ" | "FRQ") {
+    this.value = val || this.value;
+    this.typeQ = type || this.typeQ;
   }
 }
-
 export { Question };
