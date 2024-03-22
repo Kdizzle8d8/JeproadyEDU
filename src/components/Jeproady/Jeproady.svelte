@@ -17,8 +17,6 @@
   const active = writable<Category>();
   const activeQ = writable<Question>();
 
-  addCategoryOpen();
-
   let newCat = '';
   function addCategory() {
     $categories = [...$categories, new Category(newCat)];
@@ -26,13 +24,14 @@
   }
 
   function addQuestion(q: Question) {
+    if ($active.questions.length > 0) {
+      valList.indexOf($active.questions[0].value);
+    }
     $active.questions.push(q);
     $questions = $active.questions;
     console.log($active.questions);
   }
 
-  let tempQ = new Question();
-  tempQ.value = 100;
   function makeActiveQ(q: Question) {
     $activeQ = q;
     console.log($activeQ.typeQ);
@@ -68,6 +67,7 @@
 {JSON.stringify($categories)}
 <div class="flex w-full h-full">
   <div class="flex flex-col flex-grow h-full w-44">
+    <PlusButton props="w-[10rem] h-[2rem]" onClick={addCategoryOpen} content="New Question"></PlusButton>
     <div class="grid grid-cols-1 gap-0 my-5 border-2 border-l-0 dark:border-gray-600 rounded-md rounded-l-none gird-flow-col w-max h-min">
       {#each $categories as category}
         <PlusButton
@@ -103,7 +103,7 @@
                     removeQ(question);
                   }}>Delete</button>
               </ContextMenu.Item>
-              <ContextMenu.Item on:click={() => valueDialogOpen([123])}>Change Value</ContextMenu.Item>
+              <ContextMenu.Item on:click={() => valueDialogOpen(valList, updateVal, activeQ)}>Change Value</ContextMenu.Item>
             </ContextMenu.Content>
           </ContextMenu.Root>
         {/each}
