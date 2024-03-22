@@ -1,0 +1,20 @@
+import { writable } from "svelte/store";
+import { modalManager } from "../Shared";
+import CategoryDialog from "./category-dialog.svelte";
+import { Category } from "../Category";
+
+const _categories: Category[] = []
+
+export const categories=writable<Category[]>([]);
+
+export const addCategory = (name: string) => {
+    _categories.push(new Category(name))
+    categories.set(_categories)
+}
+
+export const addCategoryOpen = () => {
+	modalManager.open({
+		id: "add-category",
+		component: CategoryDialog,
+	});
+};
