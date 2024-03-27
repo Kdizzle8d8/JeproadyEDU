@@ -1,27 +1,18 @@
 <script lang="ts">
-  import { Category } from './Category';
-  import { Question } from './Question';
-  import PlusButton from './plusButton.svelte';
+  import * as ContextMenu from '$lib/components/ui/context-menu/index.js';
   import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
   import { writable } from 'svelte/store';
   import QuestionEditor from './QuestionEditor.svelte';
-  import * as ContextMenu from '$lib/components/ui/context-menu/index.js';
-  import { onMount } from 'svelte';
-  import { Value } from 'radix-icons-svelte';
-  import ValueDialog from '../ValueDialog.svelte';
-  import { valueDialogOpen } from './valueDialog';
+  import { Category } from './categories/Category';
   import { addCategoryOpen, categories } from './categories/categories';
+  import PlusButton from './plusButton.svelte';
+  import { Question } from './questions/question';
+  import { valueDialogOpen } from './valueDialog';
   const questions = writable<Question[]>([]);
   const valList = [100, 200, 300, 400, 500];
   $: categories;
   const active = writable<Category>();
   const activeQ = writable<Question>();
-
-  let newCat = '';
-  function addCategory() {
-    $categories = [...$categories, new Category(newCat)];
-    console.log($categories);
-  }
 
   function addQuestion(q: Question) {
     if ($active.questions.length > 0) {
@@ -68,7 +59,7 @@
 <div class="flex w-full h-full">
   <div class="flex flex-col flex-grow h-full w-44">
     <PlusButton props="w-[10rem] h-[2rem]" onClick={addCategoryOpen} content="New Question"></PlusButton>
-    <div class="grid grid-cols-1 gap-0 my-5 border-2 border-l-0 dark:border-gray-600 rounded-md rounded-l-none gird-flow-col w-max h-min">
+    <div class="grid grid-cols-1 gap-0 my-5 border-2 border-l-0 rounded-md rounded-l-none dark:border-gray-600 gird-flow-col w-max h-min">
       {#each $categories as category}
         <PlusButton
           props="h-min w-max flex mx-auto my-2 mx-2 mr-4 p-2"
@@ -84,12 +75,12 @@
       <header class="flex w-full h-10 border-b-2 dark:border-gray-800">
         <span class="self-center block ml-2 font-semibold text-center">Now Editing: {$active.title}</span>
       </header>
-      <span class="flex items-center h-12 mx-4 border-2 border-t-0 dark:border-gray-800 rounded-md rounded-t-none">
+      <span class="flex items-center h-12 mx-4 border-2 border-t-0 rounded-md rounded-t-none dark:border-gray-800">
         {#each $questions as question}
           <ContextMenu.Root>
             <ContextMenu.Trigger>
               <button
-                class="px-4 ml-2 text-yellow-300 dark:bg-gray-700 border-2 dark:border-transparent rounded-full hover:dark:border-b-gray-500 hover:border-b-4 w-min h-min"
+                class="px-4 ml-2 text-yellow-300 border-2 rounded-full dark:bg-gray-700 dark:border-transparent hover:dark:border-b-gray-500 hover:border-b-4 w-min h-min"
                 on:click={() => {
                   makeActiveQ(question);
                 }}>
@@ -130,7 +121,7 @@
         </DropdownMenu.Root>
       </span>
       {#if $activeQ}
-        <QuestionEditor {updateVal} vals={valList} cardQ={$activeQ} cardCat={$active}></QuestionEditor>
+        <QuestionEditor {updateVal} vals={valList} question={$activeQ} cardCat={$active}></QuestionEditor>
       {/if}
     </div>
   {/if}

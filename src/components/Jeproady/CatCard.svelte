@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { Category } from "./Category";
-  import PlusButton from "./plusButton.svelte";
-  import * as DropdownMenu from "$lib/components/ui/dropdown-menu";
-  import { Question } from "./Question";
+  import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
+  import { Question } from './Question';
+  import { Category } from './categories/Category';
+  import PlusButton from './plusButton.svelte';
 
   export let cat: any;
   if (cat === undefined) {
-    cat = new Category("None");
+    cat = new Category('None');
   }
   let tempQ = new Question();
 </script>
@@ -27,20 +27,18 @@
         <DropdownMenu.Group>
           <DropdownMenu.Item
             on:click={() => {
-              tempQ.typeQ = "MCQ";
+              tempQ.typeQ = 'MCQ';
               cat.addQuestion(tempQ);
               cat = [...cat];
-            }}
-          >
+            }}>
             MCQ
           </DropdownMenu.Item>
           <DropdownMenu.Item
             on:click={() => {
-              tempQ.typeQ = "FRQ";
+              tempQ.typeQ = 'FRQ';
               cat.addQuestion(tempQ);
               cat = [...cat];
-            }}
-          >
+            }}>
             FRQ
           </DropdownMenu.Item>
         </DropdownMenu.Group>

@@ -1,7 +1,7 @@
 import { writable } from "svelte/store";
 import { modalManager } from "../Shared";
+import { Category } from "./Category";
 import CategoryDialog from "./category-dialog.svelte";
-import { Category } from "../Category";
 
 const _categories: Category[] = []
 
@@ -18,3 +18,4 @@ export const addCategoryOpen = () => {
 		component: CategoryDialog,
 	});
 };
+
